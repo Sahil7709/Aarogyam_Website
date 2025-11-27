@@ -1,0 +1,70 @@
+import React, { useEffect, useState } from 'react';
+import { Route, Redirect } from 'react-router-dom';
+import { authAPI } from 'utils/api';
+
+const UserProtectedRoute = ({ component: Component, ...rest }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [isUser, setIsUser] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          setIsAuthenticated(false);
+          return;
+        }
+
+        // Verify token and check if user is a regular user (not admin)
+        const { data, error } = await authAPI.getProfile();
+        if (data && data.role !== 'admin') {
+          setIsAuthenticated(true);
+          setIsUser(true);
+        } else {
+          setIsAuthenticated(false);
+          setIsUser(false);
+        }
+      } catch (err) {
+        setIsAuthenticated(false);
+        setIsUser(false);
+      }
+    };
+
+    checkAuth();
+    
+    // Add event listener for storage changes
+    const handleStorageChange = (e) => {
+      if (e.key === 'token') {
+        checkAuth();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // While checking authentication, show nothing or a loading spinner
+  if (isAuthenticated === null) {
+    return <div className="flex justify-center items-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>;
+  }
+
+  return (
+    <Route
+      {...rest}
+      render={(props) =>
+        isAuthenticated && isUser ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/auth/login" />
+        )
+      }
+    />
+  );
+};
+
+export default UserProtectedRoute;
