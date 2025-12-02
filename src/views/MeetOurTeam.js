@@ -1,9 +1,7 @@
-import React, { use, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Footer from "components/Footers/Footer";
 import Navbar from "components/Navbars/IndexNavbar";
 import img1 from "assets/img/Our_team1.jpg";
-import img2 from "assets/img/Banner2.jpg";
-import img3 from "assets/img/Banner3.jpg";
 import img4 from "assets/img/hmn11.jpg";
 import avatar from "assets/img/avatar.jpg";
 import manoj_agarwal from "assets/img/Dr_Manoj_Agarwal.jpg";

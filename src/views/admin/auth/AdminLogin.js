@@ -135,9 +135,9 @@ export default function AdminLogin() {
                 </Link>
               </div>
               <div className="w-1/2 text-right">
-                <Link to="/admin/auth/register" className="text-blueGray-200">
+                {/* <Link to="/admin/auth/register" className="text-blueGray-200">
                   <small>Create Account</small>
-                </Link>
+                </Link> */}
               </div>
             </div>
           </div>

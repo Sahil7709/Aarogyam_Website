@@ -6,6 +6,10 @@ export default function Register() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [allergies, setAllergies] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -17,7 +21,15 @@ export default function Register() {
     setError("");
 
     try {
-      const { data, error } = await authAPI.register({ name, email, password });
+      const { data, error } = await authAPI.register({ 
+        name, 
+        email, 
+        password,
+        bloodGroup,
+        height,
+        weight,
+        allergies
+      });
       
       if (data) {
         setSuccess(true);
@@ -77,16 +89,6 @@ export default function Register() {
                 <hr className="mt-6 border-b-1 border-blueGray-300" />
               </div>
               <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
-                {error && (
-                  <div className="text-red-500 text-sm text-center mb-4">
-                    {error}
-                  </div>
-                )}
-                {success && (
-                  <div className="text-green-500 text-sm text-center mb-4">
-                    Registration successful! Redirecting to your profile...
-                  </div>
-                )}
                 <div className="text-blueGray-400 text-center mb-3 font-bold">
                   <small>Or sign up with credentials</small>
                 </div>
@@ -126,7 +128,6 @@ export default function Register() {
                       required
                     />
                   </div>
-
                   <div className="relative w-full mb-3">
                     <label
                       className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
@@ -143,6 +144,81 @@ export default function Register() {
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                  </div>
+
+                  {/* Health Information Section */}
+                  <div className="relative w-full mb-3 mt-6">
+                    <h6 className="text-blueGray-400 text-sm font-bold mb-3">
+                      Optional Health Information
+                    </h6>
+                    
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="bloodGroup"
+                      >
+                        Blood Group
+                      </label>
+                      <input
+                        type="text"
+                        id="bloodGroup"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Blood Group (e.g., O+, AB-)"
+                        value={bloodGroup}
+                        onChange={(e) => setBloodGroup(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="height"
+                      >
+                        Height
+                      </label>
+                      <input
+                        type="text"
+                        id="height"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Height (e.g., 5'10&quot; or 178 cm)"
+                        value={height}
+                        onChange={(e) => setHeight(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="weight"
+                      >
+                        Weight
+                      </label>
+                      <input
+                        type="text"
+                        id="weight"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Weight (e.g., 70 kg or 154 lbs)"
+                        value={weight}
+                        onChange={(e) => setWeight(e.target.value)}
+                      />
+                    </div>
+                    
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="allergies"
+                      >
+                        Allergies
+                      </label>
+                      <input
+                        type="text"
+                        id="allergies"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Allergies (if none, leave blank)"
+                        value={allergies}
+                        onChange={(e) => setAllergies(e.target.value)}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -170,19 +246,24 @@ export default function Register() {
                     <button
                       className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
                       type="submit"
-                      disabled={loading || success}
+                      disabled={loading}
                     >
                       {loading ? "Creating Account..." : "Create Account"}
                     </button>
                   </div>
+                  
+                  {error && (
+                    <div className="text-red-500 text-center mt-3">
+                      {error}
+                    </div>
+                  )}
+                  
+                  {success && (
+                    <div className="text-green-500 text-center mt-3">
+                      Registration successful! Redirecting...
+                    </div>
+                  )}
                 </form>
-              </div>
-            </div>
-            <div className="flex flex-wrap mt-6 relative">
-              <div className="w-full text-right">
-                <Link to="/auth/login" className="text-blueGray-200">
-                  <small>Already have an account? Login</small>
-                </Link>
               </div>
             </div>
           </div>

@@ -30,27 +30,27 @@ export default function ContactMessages() {
     }
   };
 
-  const handleDelete = async (messageId) => {
-    if (window.confirm("Are you sure you want to delete this message?")) {
-      try {
-        const { data, error } = await adminAPI.deleteContactMessage(messageId);
-        if (data) {
-          setMessages(messages.filter(msg => msg._id !== messageId));
-        } else {
-          setError(error || "Failed to delete message");
-        }
-      } catch (err) {
-        setError("Failed to delete message");
-      }
-    }
-  };
+  // const handleDelete = async (messageId) => {
+  //   if (window.confirm("Are you sure you want to delete this message?")) {
+  //     try {
+  //       const { data, error } = await adminAPI.deleteContactMessage(messageId);
+  //       if (data) {
+  //         setMessages(messages.filter(msg => msg._id !== messageId));
+  //       } else {
+  //         setError(error || "Failed to delete message");
+  //       }
+  //     } catch (err) {
+  //       setError("Failed to delete message");
+  //     }
+  //   }
+  // };
 
-  const handleEdit = (message) => {
-    setEditingMessage(message);
-    setEditForm({
-      status: message.status
-    });
-  };
+  // const handleEdit = (message) => {
+  //   setEditingMessage(message);
+  //   setEditForm({
+  //     status: message.status
+  //   });
+  // };
 
   const handleUpdate = async (e) => {
     e.preventDefault();
@@ -229,7 +229,7 @@ export default function ContactMessages() {
                               {message.status.charAt(0).toUpperCase() + message.status.slice(1)}
                             </span>
                           </td>
-                          <td className="border-t-0 px-4 sm:px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                          {/* <td className="border-t-0 px-4 sm:px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div className="flex flex-wrap">
                               <button
                                 className="bg-green-500 text-white active:bg-green-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
@@ -244,7 +244,7 @@ export default function ContactMessages() {
                                 Delete
                               </button>
                             </div>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>

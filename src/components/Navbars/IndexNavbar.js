@@ -49,38 +49,6 @@ export default function Navbar(props) {
       document.body.style.width = 'unset';
     };
   }, [showModal]);
-  const previewEmailTemplate = (template) => {
-    // Create a simple HTML page with your template embedded
-    const previewHtml = `
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <title>Email Preview</title>
-        <style>
-          body { margin: 0; padding: 20px; background: #f0f0f0; font-family: Arial, sans-serif; }
-          .email-container { max-width: 600px; margin: 0 auto; }
-        </style>
-      </head>
-      <body>
-        <div class="email-container">
-          ${template}
-        </div>
-        <script>
-          // Optional: Add console.log for debugging
-          console.log('Email template rendered successfully');
-        </script>
-      </body>
-    </html>
-  `;
-
-    // Open in a new tab for preview
-    const newWindow = window.open('', '_blank');
-    newWindow.document.write(previewHtml);
-    newWindow.document.close();
-
-    // Log the raw template to console for copy-paste if needed
-    console.log('Raw Email Template:', template);
-  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     const emailTemplate = {

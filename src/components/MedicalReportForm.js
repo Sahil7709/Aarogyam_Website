@@ -5,11 +5,8 @@ const MedicalReportForm = () => {
   const [reports, setReports] = useState([]);
   const [stats, setStats] = useState(null);
   const [formData, setFormData] = useState({
-    title: '',
-    reportType: 'blood-test',
+    category: 'blood-test',
     date: '',
-    doctor: '',
-    hospital: '',
     results: {},
     notes: ''
   });
@@ -77,11 +74,8 @@ const MedicalReportForm = () => {
     if (data) {
       setMessage('Medical report added successfully!');
       setFormData({
-        title: '',
-        reportType: 'blood-test',
+        category: 'blood-test',
         date: '',
-        doctor: '',
-        hospital: '',
         results: {},
         notes: ''
       });
@@ -113,7 +107,7 @@ const MedicalReportForm = () => {
 
   // Render form fields based on report type
   const renderResultsFields = () => {
-    switch (formData.reportType) {
+    switch (formData.category) {
       case 'blood-test':
         return (
           <>
@@ -198,32 +192,83 @@ const MedicalReportForm = () => {
             </div>
           </>
         );
-      case 'x-ray':
+      case 'urine-test':
         return (
           <>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="findings">
-                Findings
-              </label>
-              <textarea
-                name="findings"
-                value={formData.results.findings || ''}
-                onChange={handleResultsChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                rows="3"
-              />
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="impressions">
-                Impressions
-              </label>
-              <textarea
-                name="impressions"
-                value={formData.results.impressions || ''}
-                onChange={handleResultsChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                rows="3"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="color">
+                  Color
+                </label>
+                <input
+                  type="text"
+                  name="color"
+                  value={formData.results.color || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="clarity">
+                  Clarity
+                </label>
+                <input
+                  type="text"
+                  name="clarity"
+                  value={formData.results.clarity || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ph">
+                  pH
+                </label>
+                <input
+                  type="number"
+                  step="0.1"
+                  name="ph"
+                  value={formData.results.ph || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="protein">
+                  Protein
+                </label>
+                <input
+                  type="text"
+                  name="protein"
+                  value={formData.results.protein || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="glucose">
+                  Glucose
+                </label>
+                <input
+                  type="text"
+                  name="glucose"
+                  value={formData.results.glucose || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ketones">
+                  Ketones
+                </label>
+                <input
+                  type="text"
+                  name="ketones"
+                  value={formData.results.ketones || ''}
+                  onChange={handleResultsChange}
+                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                />
+              </div>
             </div>
           </>
         );
@@ -259,26 +304,12 @@ const MedicalReportForm = () => {
         <div className="lg:col-span-2">
           <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="title">
-                Report Title
-              </label>
-              <input
-                type="text"
-                name="title"
-                value={formData.title}
-                onChange={handleChange}
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                required
-              />
-            </div>
-            
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="reportType">
-                Report Type
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="category">
+                Category
               </label>
               <select
-                name="reportType"
-                value={formData.reportType}
+                name="category"
+                value={formData.category}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               >
@@ -292,44 +323,17 @@ const MedicalReportForm = () => {
               </select>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
-                  Report Date
-                </label>
-                <input
-                  type="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="doctor">
-                  Doctor
-                </label>
-                <input
-                  type="text"
-                  name="doctor"
-                  value={formData.doctor}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-            </div>
-            
             <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="hospital">
-                Hospital/Clinic
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="date">
+                Report Date
               </label>
               <input
-                type="text"
-                name="hospital"
-                value={formData.hospital}
+                type="date"
+                name="date"
+                value={formData.date}
                 onChange={handleChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                required
               />
             </div>
             
@@ -396,7 +400,7 @@ const MedicalReportForm = () => {
                 {stats.recentReports.map(report => (
                   <div key={report._id} className="border-b pb-3 last:border-0 last:pb-0">
                     <div className="flex justify-between">
-                      <h4 className="font-semibold">{report.title}</h4>
+                      <h4 className="font-semibold capitalize">{report.category || report.reportType}</h4>
                       <button
                         onClick={() => deleteReport(report._id)}
                         className="text-red-500 hover:text-red-700"
@@ -405,7 +409,7 @@ const MedicalReportForm = () => {
                       </button>
                     </div>
                     <p className="text-sm text-gray-600">{new Date(report.date).toLocaleDateString()}</p>
-                    <p className="text-sm capitalize">{report.reportType}</p>
+                    <p className="text-sm capitalize">{report.category || report.reportType}</p>
                   </div>
                 ))}
               </div>
@@ -427,13 +431,9 @@ const MedicalReportForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {reports.map(report => (
               <div key={report._id} className="bg-white shadow rounded p-4">
-                <h4 className="font-bold">{report.title}</h4>
+                <h4 className="font-bold capitalize">{report.category || report.reportType}</h4>
                 <p className="text-gray-600 text-sm">{new Date(report.date).toLocaleDateString()}</p>
-                <p className="text-gray-800 capitalize">{report.reportType}</p>
-                <p className="text-gray-600 text-sm">Dr. {report.doctor}</p>
-                {report.hospital && (
-                  <p className="text-gray-600 text-sm">{report.hospital}</p>
-                )}
+                <p className="text-gray-800 capitalize">{report.category || report.reportType}</p>
                 <button
                   onClick={() => deleteReport(report._id)}
                   disabled={loading}

@@ -4,9 +4,30 @@
 // potential IPv6/localhost resolution issues on some systems.
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000/api';
 
+// Cache for GET requests
+const apiCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
 // Helper function to make API requests
 const apiRequest = async (endpoint, options = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
+  const method = options.method || 'GET';
+  
+  // Create cache key for GET requests
+  const cacheKey = `${method}:${url}`;
+  
+  // Check cache for GET requests
+  if (method === 'GET' && apiCache.has(cacheKey)) {
+    const { data, timestamp } = apiCache.get(cacheKey);
+    if (Date.now() - timestamp < CACHE_DURATION) {
+      console.log(`Returning cached response for ${url}`);
+      return { data, error: null };
+    } else {
+      // Remove expired cache entry
+      apiCache.delete(cacheKey);
+    }
+  }
+  
   console.log(`Making API request to: ${url}`, options);
   
   const config = {
@@ -31,12 +52,22 @@ const apiRequest = async (endpoint, options = {}) => {
     if (response.ok) {
       const data = await response.json();
       console.log(`Successful response from ${url}:`, data);
+      
+      // Cache GET responses
+      if (method === 'GET') {
+        apiCache.set(cacheKey, { data, timestamp: Date.now() });
+      }
+      
       return { data, error: null };
     }
     
     // Handle error responses
     const errorData = await response.json();
     console.log(`Error response from ${url}:`, errorData);
+    
+    // Clear cache on error for this endpoint
+    apiCache.delete(cacheKey);
+    
     return { data: null, error: errorData.message || 'An error occurred' };
   } catch (error) {
     console.error(`Network error for ${url}:`, error);
@@ -45,8 +76,28 @@ const apiRequest = async (endpoint, options = {}) => {
       console.error('This may indicate that the server is not running or there is a network connectivity issue.');
       console.error('Please ensure the backend server is running on http://localhost:5000');
     }
+    
+    // Clear cache on network error
+    apiCache.delete(cacheKey);
+    
     return { data: null, error: 'Network error - please try again' };
   }
+};
+
+// Helper function to clear cache for a specific endpoint
+export const clearCache = (endpoint) => {
+  const keysToDelete = [];
+  apiCache.forEach((value, key) => {
+    if (key.endsWith(endpoint)) {
+      keysToDelete.push(key);
+    }
+  });
+  keysToDelete.forEach(key => apiCache.delete(key));
+};
+
+// Helper function to clear all cache
+export const clearAllCache = () => {
+  apiCache.clear();
 };
 
 // Authentication API
@@ -69,6 +120,8 @@ export const authAPI = {
   
   // Login user
   login: async (credentials) => {
+    // Clear cache on login
+    clearAllCache();
     return apiRequest('/auth/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
@@ -87,6 +140,8 @@ export const authAPI = {
 export const appointmentAPI = {
   // Create a new appointment
   createAppointment: async (appointmentData) => {
+    // Clear cache when creating appointment
+    clearCache('/appointments');
     return apiRequest('/appointments', {
       method: 'POST',
       body: JSON.stringify(appointmentData),
@@ -110,6 +165,8 @@ export const appointmentAPI = {
   
   // Update appointment status
   updateAppointment: async (id, status) => {
+    // Clear cache when updating appointment
+    clearCache('/appointments');
     return apiRequest(`/appointments/${id}`, {
       method: 'PUT',
       body: JSON.stringify({ status }),
@@ -118,6 +175,8 @@ export const appointmentAPI = {
   
   // Cancel appointment
   cancelAppointment: async (id) => {
+    // Clear cache when deleting appointment
+    clearCache('/appointments');
     return apiRequest(`/appointments/${id}`, {
       method: 'DELETE',
     });
@@ -128,6 +187,8 @@ export const appointmentAPI = {
 export const reportAPI = {
   // Create a new medical report
   createReport: async (reportData) => {
+    // Clear cache when creating report
+    clearCache('/reports');
     return apiRequest('/reports', {
       method: 'POST',
       body: JSON.stringify(reportData),
@@ -150,6 +211,8 @@ export const reportAPI = {
   
   // Update medical report
   updateReport: async (id, reportData) => {
+    // Clear cache when updating report
+    clearCache('/reports');
     return apiRequest(`/reports/${id}`, {
       method: 'PUT',
       body: JSON.stringify(reportData),
@@ -158,6 +221,8 @@ export const reportAPI = {
   
   // Delete medical report
   deleteReport: async (id) => {
+    // Clear cache when deleting report
+    clearCache('/reports');
     return apiRequest(`/reports/${id}`, {
       method: 'DELETE',
     });
@@ -207,6 +272,8 @@ export const adminAPI = {
   
   // Update user
   updateUser: async (id, userData) => {
+    // Clear cache when updating user
+    clearCache('/admin/users');
     return apiRequest(`/admin/users/${id}`, {
       method: 'PUT',
       body: JSON.stringify(userData),
@@ -215,6 +282,8 @@ export const adminAPI = {
   
   // Delete user
   deleteUser: async (id) => {
+    // Clear cache when deleting user
+    clearCache('/admin/users');
     return apiRequest(`/admin/users/${id}`, {
       method: 'DELETE',
     });
@@ -236,6 +305,8 @@ export const adminAPI = {
   
   // Update appointment
   updateAppointment: async (id, appointmentData) => {
+    // Clear cache when updating appointment
+    clearCache('/admin/appointments');
     return apiRequest(`/admin/appointments/${id}`, {
       method: 'PUT',
       body: JSON.stringify(appointmentData),
@@ -244,6 +315,8 @@ export const adminAPI = {
   
   // Delete appointment
   deleteAppointment: async (id) => {
+    // Clear cache when deleting appointment
+    clearCache('/admin/appointments');
     return apiRequest(`/admin/appointments/${id}`, {
       method: 'DELETE',
     });
@@ -258,6 +331,8 @@ export const adminAPI = {
   
   // Update contact message
   updateContactMessage: async (id, messageData) => {
+    // Clear cache when updating contact message
+    clearCache('/admin/contact-messages');
     return apiRequest(`/admin/contact-messages/${id}`, {
       method: 'PUT',
       body: JSON.stringify(messageData),
@@ -266,7 +341,52 @@ export const adminAPI = {
   
   // Delete contact message
   deleteContactMessage: async (id) => {
+    // Clear cache when deleting contact message
+    clearCache('/admin/contact-messages');
     return apiRequest(`/admin/contact-messages/${id}`, {
+      method: 'DELETE',
+    });
+  },
+  
+  // Create medical report by admin
+  createMedicalReportByAdmin: async (reportData) => {
+    // Clear cache when creating report
+    clearCache('/reports');
+    return apiRequest('/admin/medical-reports', {
+      method: 'POST',
+      body: JSON.stringify(reportData),
+    });
+  },
+  
+  // Get all medical reports (Admin only)
+  getAllMedicalReports: async () => {
+    return apiRequest('/admin/medical-reports', {
+      method: 'GET',
+    });
+  },
+  
+  // Get medical report by ID (Admin only)
+  getMedicalReport: async (id) => {
+    return apiRequest(`/admin/medical-reports/${id}`, {
+      method: 'GET',
+    });
+  },
+  
+  // Update medical report (Admin only)
+  updateMedicalReport: async (id, reportData) => {
+    // Clear cache when updating report
+    clearCache('/admin/medical-reports');
+    return apiRequest(`/admin/medical-reports/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(reportData),
+    });
+  },
+  
+  // Delete medical report (Admin only)
+  deleteMedicalReport: async (id) => {
+    // Clear cache when deleting report
+    clearCache('/admin/medical-reports');
+    return apiRequest(`/admin/medical-reports/${id}`, {
       method: 'DELETE',
     });
   },

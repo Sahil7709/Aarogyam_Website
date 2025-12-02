@@ -2,19 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import "./layers.css";
 
 // Import assets (replace with your actual paths)
-import Medical_Video from "../assets/img/Medical_Video.mp4";
 import img1 from "../assets/img/Banner1.jpg";
 import redefineImg1 from "../assets/img/Redefine1.png.jpg";
 import redefineImg2 from "../assets/img/Redefine2.png.jpg";
 import redefineImg3 from "../assets/img/Redefine3.png.jpg";
 import redefineImg4 from "../assets/img/Redefine4.png.jpg";
-import scrollBackground from "../assets/img/17973908.jpg";
 import backgroundLayer from "../assets/img/dna-representation-concept.png";
 import Navbar from "components/Navbars/IndexNavbar";
 import Footer from "components/Footers/Footer";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import our_philoshophy from "../assets/img/our_philosophy.png";
-import redefine from "../assets/img/Redefine.png";
 import { TiArrowDownOutline, TiArrowUpOutline } from "react-icons/ti";
 import Poster1 from "../assets/img/Poster/Poster1.png";
 import Poster2 from "../assets/img/Poster/Poster2.png";
@@ -34,19 +30,15 @@ const Index = () => {
   const images = [
     {
       src: redefineImg1,
-      
     },
     {
       src: redefineImg2,
-      
     },
     {
       src: redefineImg3,
-      
     },
     {
       src: redefineImg4,
-      
     },
   ];
 
@@ -98,7 +90,6 @@ const Index = () => {
     },
   ];
 
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [aboutCurrentIndex, setAboutCurrentIndex] = useState(0);
   const [selectedLayer, setSelectedLayer] = useState(services[0]);
   const [displayedTitle, setDisplayedTitle] = useState('');
@@ -156,13 +147,7 @@ const Index = () => {
     };
   }, []);
 
-  // Carousel effect for header
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % images.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, [images.length]);
+
 
   // Carousel effect for about section
   useEffect(() => {
@@ -208,22 +193,6 @@ const Index = () => {
           }}
         >
           <div className="header-overlay"></div>
-          {/* <div className="header-content">
-            <h1 className="header-heading">
-              {images[currentIndex].text.heading === "Rediscover The New You"
-                ? renderCurvedText(images[currentIndex].text.heading)
-                : images[currentIndex].text.heading}
-            </h1>
-            <p
-              className={`header-paragraph ${
-                images[currentIndex].text.paragraph === "#Swasth #Santulan #Kalyan"
-                  ? "hashtag-text"
-                  : ""
-              }`}
-            >
-              {images[currentIndex].text.paragraph}
-            </p>
-          </div> */}
         </section>
 
         {/* About Us Section */}
@@ -355,7 +324,7 @@ const Index = () => {
                     onClick={() => handleLayerClick(layer)}
                   >
                     <div className="layer-text">{layer.title}</div>
-                    {layer.id == "complete-discretion" ? <TiArrowUpOutline size={20} style={{ animation: 'blink 2s infinite', marginLeft: '8px', color: '#fff'}} />:<TiArrowDownOutline size={20} style={{animation: 'blink 2s infinite', marginLeft: '8px', color: '#fff'}} />}
+                    {layer.id === "complete-discretion" ? <TiArrowUpOutline size={20} style={{ animation: 'blink 2s infinite', marginLeft: '8px', color: '#fff'}} /> : <TiArrowDownOutline size={20} style={{animation: 'blink 2s infinite', marginLeft: '8px', color: '#fff'}} />}
                   </div>
                 ))}
               </div>

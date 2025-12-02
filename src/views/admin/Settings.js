@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { adminAPI, authAPI } from "utils/api";
+import { authAPI } from "utils/api";
 
 export default function Settings() {
   const [adminData, setAdminData] = useState({

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { authAPI } from "utils/api";
+import avtar from "../../assets/img/admin.jpg";
 
 export default function Profile() {
   const [adminData, setAdminData] = useState({
@@ -265,12 +266,12 @@ export default function Profile() {
                     <div className="relative">
                       <img
                         alt="Admin Avatar"
-                        src={require("assets/img/team-1-800x800.jpg").default}
+                        src={avtar}
                         className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-150-px"
                       />
                     </div>
                   </div>
-                  <div className="w-full px-4 text-center mt-20">
+                  <div className="w-full px-4 text-center mt-30">
                     <div className="flex justify-center py-4 lg:pt-4 pt-8">
                       <div className="mr-4 p-3 text-center">
                         <span className="text-xl font-bold block uppercase tracking-wide text-green-600">
@@ -285,7 +286,7 @@ export default function Profile() {
                   <h3 className="text-xl font-semibold leading-normal mb-2 text-green-700 mb-2">
                     {adminData.name || "Admin User"}
                   </h3>
-                  <div className="text-sm leading-normal mt-0 mb-2 text-green-400 font-bold uppercase">
+                  <div className="text-sm leading-normal mt-0 mb-2 text-green-400 font-bold">
                     <i className="fas fa-envelope mr-2 text-lg text-green-400"></i>
                     {adminData.email}
                   </div>

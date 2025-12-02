@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, memo } from "react";
 import { adminAPI } from "../../utils/api";
 
-export default function Appointments() {
+const Appointments = () => {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -13,11 +13,7 @@ export default function Appointments() {
     reason: ""
   });
 
-  useEffect(() => {
-    fetchAppointments();
-  }, []);
-
-  const fetchAppointments = async () => {
+  const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
       const { data, error } = await adminAPI.getAllAppointments();
@@ -31,34 +27,15 @@ export default function Appointments() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const handleDelete = async (appointmentId) => {
-    if (window.confirm("Are you sure you want to delete this appointment?")) {
-      try {
-        const { data, error } = await adminAPI.deleteAppointment(appointmentId);
-        if (data) {
-          setAppointments(appointments.filter(appt => appt._id !== appointmentId));
-        } else {
-          setError(error || "Failed to delete appointment");
-        }
-      } catch (err) {
-        setError("Failed to delete appointment");
-      }
-    }
-  };
+  useEffect(() => {
+    fetchAppointments();
+  }, [fetchAppointments]);
 
-  const handleEdit = (appointment) => {
-    setEditingAppointment(appointment);
-    setEditForm({
-      status: appointment.status,
-      date: appointment.date.split('T')[0], // Format date for input
-      time: appointment.time,
-      reason: appointment.reason || ""
-    });
-  };
 
-  const handleUpdate = async (e) => {
+
+  const handleUpdate = useCallback(async (e) => {
     e.preventDefault();
     try {
       const { data, error } = await adminAPI.updateAppointment(editingAppointment._id, editForm);
@@ -74,12 +51,12 @@ export default function Appointments() {
     } catch (err) {
       setError("Failed to update appointment");
     }
-  };
+  }, [editingAppointment, editForm, appointments]);
 
-  const cancelEdit = () => {
+  const cancelEdit = useCallback(() => {
     setEditingAppointment(null);
     setEditForm({ status: "", date: "", time: "", reason: "" });
-  };
+  }, []);
 
   if (loading) {
     return (
@@ -276,7 +253,7 @@ export default function Appointments() {
                               {appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1)}
                             </span>
                           </td>
-                          <td className="border-t-0 px-4 sm:px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
+                          {/* <td className="border-t-0 px-4 sm:px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                             <div className="flex flex-wrap">
                               <button
                                 className="bg-green-500 text-white active:bg-green-600 text-xs font-bold uppercase px-3 py-1 rounded outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
@@ -291,7 +268,7 @@ export default function Appointments() {
                                 Delete
                               </button>
                             </div>
-                          </td>
+                          </td> */}
                         </tr>
                       ))}
                     </tbody>
@@ -304,4 +281,6 @@ export default function Appointments() {
       </div>
     </>
   );
-}
+};
+
+export default memo(Appointments);
