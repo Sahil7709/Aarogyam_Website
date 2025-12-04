@@ -107,187 +107,95 @@ const MedicalReportForm = () => {
 
   // Render form fields based on report type
   const renderResultsFields = () => {
-    switch (formData.category) {
-      case 'blood-test':
-        return (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="hemoglobin">
-                  Hemoglobin
-                </label>
+    return (
+      <div className="space-y-3">
+        {Object.keys(formData.results).length === 0 ? (
+          <p className="text-gray-500 text-sm">No test results added yet.</p>
+        ) : (
+          Object.entries(formData.results).map(([key, value]) => (
+            <div key={key} className="flex gap-2">
+              <div className="flex-1">
                 <input
-                  type="number"
-                  step="0.1"
-                  name="hemoglobin"
-                  value={formData.results.hemoglobin || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  type="text"
+                  value={key.startsWith('test_') ? '' : key}
+                  onChange={(e) => {
+                    const newKey = e.target.value || `test_${Date.now()}`;
+                    if (key === newKey) return;
+                    
+                    setFormData({
+                      ...formData,
+                      results: {
+                        ...formData.results,
+                        [newKey]: value,
+                        [key]: undefined
+                      }
+                    });
+                  }}
+                  placeholder="Test name"
+                  className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => {
+                    setFormData({
+                      ...formData,
+                      results: {
+                        ...formData.results,
+                        [key]: e.target.value
+                      }
+                    });
+                  }}
+                  placeholder="Value"
+                  className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 />
               </div>
               <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="rbc">
-                  RBC Count
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="rbc"
-                  value={formData.results.rbc || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="wbc">
-                  WBC Count
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="wbc"
-                  value={formData.results.wbc || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="platelets">
-                  Platelets
-                </label>
-                <input
-                  type="number"
-                  name="platelets"
-                  value={formData.results.platelets || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="glucose">
-                  Glucose
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="glucose"
-                  value={formData.results.glucose || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="cholesterol">
-                  Cholesterol
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="cholesterol"
-                  value={formData.results.cholesterol || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newResults = { ...formData.results };
+                    delete newResults[key];
+                    setFormData({
+                      ...formData,
+                      results: newResults
+                    });
+                  }}
+                  className="inline-flex items-center p-2 border border-transparent rounded-full shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                >
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
               </div>
             </div>
-          </>
-        );
-      case 'urine-test':
-        return (
-          <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="color">
-                  Color
-                </label>
-                <input
-                  type="text"
-                  name="color"
-                  value={formData.results.color || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="clarity">
-                  Clarity
-                </label>
-                <input
-                  type="text"
-                  name="clarity"
-                  value={formData.results.clarity || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ph">
-                  pH
-                </label>
-                <input
-                  type="number"
-                  step="0.1"
-                  name="ph"
-                  value={formData.results.ph || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="protein">
-                  Protein
-                </label>
-                <input
-                  type="text"
-                  name="protein"
-                  value={formData.results.protein || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="glucose">
-                  Glucose
-                </label>
-                <input
-                  type="text"
-                  name="glucose"
-                  value={formData.results.glucose || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div>
-                <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="ketones">
-                  Ketones
-                </label>
-                <input
-                  type="text"
-                  name="ketones"
-                  value={formData.results.ketones || ''}
-                  onChange={handleResultsChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-            </div>
-          </>
-        );
-      default:
-        return (
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="results">
-              Results
-            </label>
-            <textarea
-              name="results"
-              value={JSON.stringify(formData.results, null, 2)}
-              onChange={(e) => setFormData({...formData, results: JSON.parse(e.target.value || '{}')})}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              rows="5"
-            />
-          </div>
-        );
-    }
+          ))
+        )}
+        <div className="pt-2">
+          <button
+            type="button"
+            onClick={() => {
+              const newKey = `test_${Date.now()}`;
+              setFormData({
+                ...formData,
+                results: {
+                  ...formData.results,
+                  [newKey]: ''
+                }
+              });
+            }}
+            className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-black bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          >
+            <svg className="-ml-0.5 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Test Result
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -314,12 +222,7 @@ const MedicalReportForm = () => {
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               >
                 <option value="blood-test">Blood Test</option>
-                <option value="urine-test">Urine Test</option>
-                <option value="x-ray">X-Ray</option>
-                <option value="mri">MRI</option>
-                <option value="ct-scan">CT Scan</option>
-                <option value="ecg">ECG</option>
-                <option value="other">Other</option>
+                <option value="gut-test">Gut Test</option>
               </select>
             </div>
             

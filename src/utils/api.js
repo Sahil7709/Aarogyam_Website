@@ -2,7 +2,8 @@
 
 // Default API base includes the `/api` prefix and uses IPv4 loopback to avoid
 // potential IPv6/localhost resolution issues on some systems.
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000/api';
+// const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://127.0.0.1:5000/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://aarogyam-backend-l9yg.onrender.com/api';
 
 // Cache for GET requests
 const apiCache = new Map();
