@@ -27,7 +27,7 @@ export default function AdminNavbar({ toggleSidebar }) {
               className="text-lg font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase text-green-700"
               to="/admin/dashboard"
             >
-              Aarogyam Admin
+              Welcome Admin
             </Link>
           </div>
           <div

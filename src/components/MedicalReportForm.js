@@ -25,8 +25,8 @@ const MedicalReportForm = () => {
     const { data, error } = await reportAPI.getReports();
     setLoading(false);
     
-    if (data) {
-      setReports(data);
+    if (data && data.reports) {
+      setReports(data.reports);
     } else {
       setMessage(`Error fetching reports: ${error}`);
     }
@@ -36,8 +36,8 @@ const MedicalReportForm = () => {
   const fetchStats = async () => {
     const { data, error } = await reportAPI.getReportStats();
     
-    if (data) {
-      setStats(data);
+    if (data && data.stats) {
+      setStats(data.stats);
     } else {
       setMessage(`Error fetching stats: ${error}`);
     }
@@ -71,7 +71,7 @@ const MedicalReportForm = () => {
     const { data, error } = await reportAPI.createReport(formData);
     setLoading(false);
     
-    if (data) {
+    if (data && data.report) {
       setMessage('Medical report added successfully!');
       setFormData({
         category: 'blood-test',
@@ -94,7 +94,7 @@ const MedicalReportForm = () => {
       const { data, error } = await reportAPI.deleteReport(id);
       setLoading(false);
       
-      if (data) {
+      if (data && data.message) {
         setMessage('Report deleted successfully!');
         // Refresh reports list and stats
         fetchReports();

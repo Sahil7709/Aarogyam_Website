@@ -48,7 +48,7 @@ const ContactForm = () => {
     const { data, error } = await contactAPI.submitMessage(formData);
     setLoading(false);
     
-    if (data) {
+    if (data && data.contactMessage) {
       setMessage('Message sent successfully! We will get back to you soon.');
       setFormData({
         name: '',

@@ -28,8 +28,8 @@ const AppointmentForm = () => {
     const { data, error } = await appointmentAPI.getAppointments();
     setLoading(false);
     
-    if (data) {
-      setAppointments(data);
+    if (data && data.appointments) {
+      setAppointments(data.appointments);
     } else {
       setMessage(`Error fetching appointments: ${error}`);
     }
@@ -100,7 +100,7 @@ const AppointmentForm = () => {
     const { data, error } = await appointmentAPI.createPublicAppointment(formData);
     setLoading(false);
     
-    if (data) {
+    if (data && data.appointment) {
       setMessage('Appointment booked successfully!');
       setFormData({
         name: '',
@@ -126,7 +126,7 @@ const AppointmentForm = () => {
     const { data, error } = await appointmentAPI.cancelAppointment(id);
     setLoading(false);
     
-    if (data) {
+    if (data && data.message) {
       setMessage('Appointment cancelled successfully!');
       // Refresh appointments list
       fetchAppointments();

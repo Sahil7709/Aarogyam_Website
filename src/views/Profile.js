@@ -12,8 +12,8 @@ export default function Profile() {
     const fetchProfile = async () => {
       try {
         const { data, error } = await authAPI.getProfile();
-        if (data) {
-          setUser(data);
+        if (data && data.user) {
+          setUser(data.user);
         } else {
           setError(error || "Failed to load profile");
         }
