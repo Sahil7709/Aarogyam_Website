@@ -5,6 +5,8 @@ import { authAPI } from "utils/api";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [usePhone, setUsePhone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const history = useHistory();
@@ -15,7 +17,12 @@ export default function Login() {
     setError("");
 
     try {
-      const { data, error } = await authAPI.login({ email, password });
+      // Prepare login data based on whether user is logging in with email or phone
+      const loginData = usePhone 
+        ? { phone, password }
+        : { email, password };
+      
+      const { data, error } = await authAPI.login(loginData);
       
       if (data) {
         // Store token in localStorage
@@ -31,9 +38,17 @@ export default function Login() {
             history.push("/admin/dashboard");
           }, 100);
         } else {
-          // Small delay to ensure token is stored before redirect
+          // For non-admin users, check if profile is complete
+          // Check if profile is registered (complete)
+          const isRegistered = data.user ? data.user.isRegistered : false;
+          
+          // Redirect to profile page to check if profile needs to be completed
           setTimeout(() => {
-            history.push("/profile");
+            if (!isRegistered) {
+              history.push("/profile");
+            } else {
+              history.push("/"); // Go to home if profile is already complete
+            }
           }, 100);
         }
       } else {
@@ -94,23 +109,60 @@ export default function Login() {
                   <small>Or sign in with credentials</small>
                 </div>
                 <form onSubmit={handleSubmit}>
-                  <div className="relative w-full mb-3">
-                    <label
-                      className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                      htmlFor="email"
+                  <div className="flex mb-3">
+                    <button
+                      type="button"
+                      className={`flex-1 py-2 px-4 rounded-l-lg ${!usePhone ? 'bg-blueGray-800 text-white' : 'bg-gray-200 text-gray-700'}`}
+                      onClick={() => setUsePhone(false)}
                     >
                       Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                      placeholder="Email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
+                    </button>
+                    <button
+                      type="button"
+                      className={`flex-1 py-2 px-4 rounded-r-lg ${usePhone ? 'bg-blueGray-800 text-white' : 'bg-gray-200 text-gray-700'}`}
+                      onClick={() => setUsePhone(true)}
+                    >
+                      Phone
+                    </button>
                   </div>
+                  
+                  {!usePhone ? (
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="email"
+                      >
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="phone"
+                      >
+                        Phone Number
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Phone Number"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        required
+                      />
+                    </div>
+                  )}
 
                   <div className="relative w-full mb-3">
                     <label

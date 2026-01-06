@@ -1,208 +1,280 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { authAPI } from "utils/api";
-import Navbar from "../components/Navbars/IndexNavbar.js";
 
 export default function Profile() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password, setPassword] = useState("");
+  const [bloodGroup, setBloodGroup] = useState("");
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [allergies, setAllergies] = useState("");
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
+  const history = useHistory();
 
+  // Load existing profile data if available
   useEffect(() => {
-    const fetchProfile = async () => {
+    const loadProfile = async () => {
       try {
-        const { data, error } = await authAPI.getProfile();
-        if (data && data.user) {
-          setUser(data.user);
-        } else {
-          setError(error || "Failed to load profile");
+        const response = await authAPI.getProfile();
+        if (response.data) {
+          const user = response.data.user;
+          setName(user.name || "");
+          setEmail(user.email || "");
+          setPhone(user.phone || "");
+          setBloodGroup(user.bloodGroup || "");
+          setHeight(user.height || "");
+          setWeight(user.weight || "");
+          setAllergies(user.allergies || "");
+          
+          // Check if profile is complete
+          const isComplete = user.name && user.email;
+          setIsProfileComplete(isComplete && (user.isRegistered !== false)); // Profile is complete if required fields exist and isRegistered is not explicitly false
         }
       } catch (err) {
-        setError("An error occurred while loading profile");
+        console.error("Error loading profile:", err);
+        // If there's an error loading profile, the user might be logging in for the first time
+        // after admin authorization, so we'll continue with empty fields
       } finally {
-        setLoading(false);
+        setProfileLoaded(true);
       }
     };
 
-    fetchProfile();
+    loadProfile();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">{error}</div>
-          <Link to="/auth/login" className="text-blue-500 hover:underline">
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-center">
-          <div className="text-red-500 text-xl mb-4">User not found</div>
-          <Link to="/auth/login" className="text-blue-500 hover:underline">
-            Go to Login
-          </Link>
-        </div>
-      </div>
-    );
-  }
+    try {
+      // Use register API to update profile for authorized users
+      const { data, error } = await authAPI.register({ 
+        name, 
+        email, 
+        phone,
+        password,
+        bloodGroup,
+        height,
+        weight,
+        allergies
+      });
+      
+      if (data) {
+        setSuccess(true);
+        // Store token in localStorage (in case it was updated)
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+        
+        // Redirect to main profile page after successful completion
+        setTimeout(() => {
+          history.push("/");
+        }, 2000);
+      } else {
+        setError(error || "Profile update failed");
+      }
+    } catch (err) {
+      setError("An error occurred during profile completion");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <Navbar transparent />
-      <main className="profile-page">
-        <section className="relative block h-500-px">
-          <div
-            className="absolute top-0 w-full h-full bg-center bg-cover"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1499336315816-097655dcfbda?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2710&q=80')",
-            }}
-          >
-            <span
-              id="blackOverlay"
-              className="w-full h-full absolute opacity-50 bg-black"
-            ></span>
-          </div>
-          <div
-            className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
-            >
-              <polygon
-                className="text-blueGray-200 fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
-        </section>
-        <section className="relative py-16 bg-blueGray-200">
-          <div className="container mx-auto px-4">
-            <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-xl rounded-lg -mt-64">
-              <div className="px-6">
-                <div className="flex flex-wrap justify-center">
-                  <div className="w-full lg:w-3/12 px-4 lg:order-2 flex justify-center">
-                    <div className="relative">
-                      <img
-                        alt="..."
-                        src={require("assets/img/team-2-800x800.jpg").default}
-                        className="shadow-xl rounded-full h-auto align-middle border-none absolute -m-16 -ml-20 lg:-ml-16 max-w-150-px"
+      <div className="container mx-auto px-4 h-full">
+        <div className="flex content-center items-center justify-center h-full">
+          <div className="w-full lg:w-6/12 px-4">
+            <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200 border-0">
+              <div className="rounded-t mb-0 px-6 py-6">
+                <div className="text-center mb-3">
+                  <h6 className="text-blueGray-500 text-sm font-bold">
+                    {profileLoaded && isProfileComplete ? "Your Profile" : "Complete Your Profile"}
+                  </h6>
+                </div>
+                <hr className="mt-6 border-b-1 border-blueGray-300" />
+              </div>
+              <div className="flex-auto px-4 lg:px-10 py-10 pt-0">
+                {!profileLoaded ? (
+                  <div className="text-center py-10">
+                    <p>Loading profile...</p>
+                  </div>
+                ) : isProfileComplete ? (
+                  <div className="text-center py-10">
+                    <h3 className="text-xl font-bold mb-4">Your Profile is Complete!</h3>
+                    <p className="mb-6">You have successfully completed your profile.</p>
+                    <button
+                      className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                      onClick={() => history.push('/')}
+                    >
+                      Go to Dashboard
+                    </button>
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmit}>
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="name"
+                      >
+                        Name
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        required
                       />
                     </div>
-                  </div>
-                  <div className="w-full lg:w-4/12 px-4 lg:order-3 lg:text-right lg:self-center">
-                    <div className="py-6 px-3 mt-32 sm:mt-0">
-                      <button
-                        className="bg-lightBlue-500 active:bg-lightBlue-600 uppercase text-white font-bold hover:shadow-md shadow text-xs px-4 py-2 rounded outline-none focus:outline-none sm:mr-2 mb-1 ease-linear transition-all duration-150"
-                        type="button"
+
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="email"
                       >
-                        Connect
+                        Email
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="relative w-full mb-3">
+                      <label
+                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                        htmlFor="password"
+                      >
+                        Password
+                      </label>
+                      <input
+                        type="password"
+                        id="password"
+                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                        placeholder="Password (optional if already set)"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Health Information Section */}
+                    <div className="relative w-full mb-3 mt-6">
+                      <h6 className="text-blueGray-400 text-sm font-bold mb-3">
+                        Optional Health Information
+                      </h6>
+                      
+                      <div className="relative w-full mb-3">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="bloodGroup"
+                        >
+                          Blood Group
+                        </label>
+                        <input
+                          type="text"
+                          id="bloodGroup"
+                          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                          placeholder="Blood Group (e.g., O+, AB-)"
+                          value={bloodGroup}
+                          onChange={(e) => setBloodGroup(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="relative w-full mb-3">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="height"
+                        >
+                          Height
+                        </label>
+                        <input
+                          type="text"
+                          id="height"
+                          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                          placeholder="Height (e.g., 5'10&quot; or 178 cm)"
+                          value={height}
+                          onChange={(e) => setHeight(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="relative w-full mb-3">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="weight"
+                        >
+                          Weight
+                        </label>
+                        <input
+                          type="text"
+                          id="weight"
+                          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                          placeholder="Weight (e.g., 70 kg or 154 lbs)"
+                          value={weight}
+                          onChange={(e) => setWeight(e.target.value)}
+                        />
+                      </div>
+                      
+                      <div className="relative w-full mb-3">
+                        <label
+                          className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
+                          htmlFor="allergies"
+                        >
+                          Allergies
+                        </label>
+                        <input
+                          type="text"
+                          id="allergies"
+                          className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
+                          placeholder="Allergies (if none, leave blank)"
+                          value={allergies}
+                          onChange={(e) => setAllergies(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="text-center mt-6">
+                      <button
+                        className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150"
+                        type="submit"
+                        disabled={loading}
+                      >
+                        {loading ? "Updating Profile..." : "Complete Profile"}
                       </button>
                     </div>
-                  </div>
-                  <div className="w-full lg:w-4/12 px-4 lg:order-1">
-                    <div className="flex justify-center py-4 lg:pt-4 pt-8">
-                      <div className="mr-4 p-3 text-center">
-                        <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                          22
-                        </span>
-                        <span className="text-sm text-blueGray-400">
-                          Appointments
-                        </span>
+                    
+                    {error && (
+                      <div className="text-red-500 text-center mt-3">
+                        {error}
                       </div>
-                      <div className="mr-4 p-3 text-center">
-                        <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                          10
-                        </span>
-                        <span className="text-sm text-blueGray-400">
-                          Reports
-                        </span>
+                    )}
+                    
+                    {success && (
+                      <div className="text-green-500 text-center mt-3">
+                        Profile completed successfully! Redirecting...
                       </div>
-                      <div className="lg:mr-4 p-3 text-center">
-                        <span className="text-xl font-bold block uppercase tracking-wide text-blueGray-600">
-                          89
-                        </span>
-                        <span className="text-sm text-blueGray-400">
-                          Messages
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="text-center mt-12">
-                  <h3 className="text-4xl font-semibold leading-normal mb-2 text-blueGray-700 mb-2">
-                    {user.name}
-                  </h3>
-                  <div className="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
-                    <i className="fas fa-envelope mr-2 text-lg text-blueGray-400"></i>
-                    {user.email}
-                  </div>
-                  <div className="text-sm leading-normal mt-0 mb-2 text-blueGray-400 font-bold uppercase">
-                    <i className="fas fa-phone mr-2 text-lg text-blueGray-400"></i>
-                    {user.phone || "Not provided"}
-                  </div>
-                  <div className="mb-2 text-blueGray-600 mt-10">
-                    <i className="fas fa-user-tag mr-2 text-lg text-blueGray-400"></i>
-                    Role: {user.role}
-                  </div>
-                </div>
-                <div className="mt-10 py-10 border-t border-blueGray-200 text-center">
-                  <div className="flex flex-wrap justify-center">
-                    <div className="w-full lg:w-9/12 px-4">
-                      <p className="mb-4 text-lg leading-relaxed text-blueGray-700">
-                        Welcome to your Aarogyam health dashboard. Here you can manage your appointments, 
-                        view medical reports, and connect with healthcare professionals.
-                      </p>
-                      <div className="flex flex-wrap justify-center gap-4 mt-8">
-                        <Link 
-                          to="/profile" 
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                        >
-                          My Profile
-                        </Link>
-                        <Link 
-                          to="/appointments" 
-                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                        >
-                          Appointments
-                        </Link>
-                        <Link 
-                          to="/reports" 
-                          className="bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded"
-                        >
-                          Medical Reports
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                    )}
+                  </form>
+                )}
               </div>
             </div>
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
     </>
   );
 }
